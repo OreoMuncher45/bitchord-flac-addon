@@ -1,0 +1,47 @@
+# Fly.io — `fly launch` and you have a public HTTPS URL.
+#
+# Audio is not proxied by default, so this machine serves three small JSON
+# routes and one 42-byte range request per track. The smallest VM is ample.
+
+app = "bitchord-flac-addon"
+primary_region = "lhr"
+
+[build]
+  dockerfile = "Dockerfile"
+
+[env]
+  PORT = "8787"
+  HOST = "0.0.0.0"
+  SOURCES = "tidal,archive"
+  PROXY = "0"
+
+[http_service]
+  internal_port = 8787
+  force_https = true
+  # The media proxy is the only thing that can take longer than a request,
+  # and it is off by default. This is here for when it is on.
+  auto_stop_machines = "stop"
+  auto_start_machines = true
+  min_machines_running = 0
+
+  [http_service.concurrency]
+    type = "requests"
+    soft_limit = 25
+    hard_limit = 50
+
+[[vm]]
+  size = "shared-cpu-1x"
+  memory = "256mb"
+
+# Addon keys, not deploy secrets, so it is worth knowing they exist: the
+# contract checker hits /health and reads this.
+[[http_service.checks]]
+  grace_period = "10s"
+  interval = "60s"
+  method = "GET"
+  timeout = "10s"
+  path = "/health"
+
+# A persistent volume is deliberately absent. The only caches here are
+# in-process and disposable; keeping FLAC probes across a restart would cost
+# storage to avoid 42-byte range requests that take half a second.
