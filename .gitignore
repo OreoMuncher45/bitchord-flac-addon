@@ -1,0 +1,21 @@
+# Nothing here needs building — the addon is plain Node with no dependencies —
+# so these are all local artefacts rather than tracked files.
+node_modules/
+npm-debug.log*
+yarn-error.log*
+
+# Real tokens. `.env.example` is the template and is tracked; `.env` is not.
+.env
+.env.local
+
+# An operator might run this locally against a real catalogue and leave a
+# captured response lying around. Nothing here is worth committing.
+*.log
+tmp/
+.cache/
+
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.swp
